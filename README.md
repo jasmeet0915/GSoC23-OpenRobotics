@@ -53,6 +53,20 @@ On the other hand, a different approach was taken for the **mesh** geometry type
 
 > **Note:** Since this method computes the inertia values using the vertex data, a large number of vertices are required in the mesh to calculate near-ideal values. For eg: in [this](https://github.com/jasmeet0915/gz-sim/blob/jasmeet/custom_mesh_inerita_calculator/test/integration/mesh_inertia_calculation.cc) integration test a cylinder mesh with 4096 vertices was used which resulted in inertia values withing a 0.005 tolerance of ideal.
 
+## Demos
+
+**Demo 1:** This demo shows 2 cylinders: one with default inertial values (right, green) and the other with automatic inertia calculations enabled (left, yellow). 
+
+In this demo, we can see the difference between the inertia of both cylinders through the visualization enabled. The difference shows that the calculated values are more realistic for cylinder as compared to the default ones.
+
+<img src="images/cylinder_auto_inertia_demo.gif" />
+
+**Demo 2:** This demo shows a model with a link having 2 collisions: a cube with a cylinder on top of it. 
+
+Default values won't be a good choice in this scenarios as we have seen in the previous demo and manually calculating the values would not be straightforward. Therefore, using the automatic inertia calculations we can easily get realistic inertial values for the compound shape.
+
+<img src="images/compound_model_auto_inertia.gif" />
+
 ## List of PRs and Issues
  <table>
   <tr>
