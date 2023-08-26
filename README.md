@@ -59,11 +59,107 @@ On the other hand, a different approach was taken for the **mesh** geometry type
 
 In this demo, we can see the difference between the inertia of both cylinders through the visualization enabled. The difference shows that the calculated values are more realistic for cylinder as compared to the default ones.
 
+<details>
+  <summary>SDF snippet for the yellow cylinder</summary>
+
+  ```xml
+    <model name="cylinder2">
+      <pose>0 4 1 0 0 0</pose>
+      <link name="cylinder_link">
+        <inertial auto="true" />
+        <collision name="collision">
+          <density>1240.0</density>
+          <geometry>
+            <cylinder>
+              <radius>1</radius>
+              <length>2</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <cylinder>
+              <radius>1</radius>
+              <length>2</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <diffuse>1.0 1.0 0.0 1.0</diffuse>
+            <ambient>1.0 1.0 0.0 1.0</ambient>
+            <specular>1.0 1.0 0.0 1.0</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+  ```
+</details>
+
 <img src="images/cylinder_auto_inertia_demo.gif" />
 
 **Demo 2:** This demo shows a model with a link having 2 collisions: a cube with a cylinder on top of it. 
 
 Default values won't be a good choice in this scenarios as we have seen in the previous demo and manually calculating the values would not be straightforward. Therefore, using the automatic inertia calculations we can easily get realistic inertial values for the compound shape.
+
+<details>
+  <summary>SDF snippet of the model in the demo</summary>
+
+  ```xml
+    <model name="compound_model">
+      <pose>0 0 1.0 0 0 0</pose>
+      <link name="compound_link">
+        <inertial auto="true" />
+        <collision name="box_collision">
+          <pose>0 0 -0.5 0 0 0</pose>
+	        <density>2.0</density>
+          <geometry>
+            <box>
+              <size>1 1 1</size>
+            </box>
+          </geometry>
+        </collision>
+        <collision name="cylinder_compound_collision">
+          <pose>0 0 0.5 0 0 0</pose>
+          <density>4</density>
+          <geometry>
+            <cylinder>
+              <radius>0.5</radius>
+              <length>1.0</length>
+            </cylinder>
+          </geometry>
+        </collision>
+
+        <visual name="cylinder_visual">
+          <pose>0 0 0.5 0 0 0</pose>
+          <geometry>
+            <cylinder>
+              <radius>0.5</radius>
+              <length>1.0</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>1 1 0 1</ambient>
+            <diffuse>1 1 0 1</diffuse>
+            <specular>1 1 0 1</specular>
+          </material>
+        </visual>
+        <visual name="box_visual">
+          <pose>0 0 -0.5 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>1 1 1</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+            <specular>1 0 0 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+  ```
+</details>
+
 
 <img src="images/compound_model_auto_inertia.gif" />
 
