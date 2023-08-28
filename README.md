@@ -23,7 +23,6 @@ This gist contains the following contents:
  * [Motivation behind the project](#Motivation)
  * [Project Summary alongwith some usage examples and demos](#Project-Summary)
  * [List of all PRs made and Issues opened during the period](#List-of-PRs-and-Issues)
- * Possible future additions
  * [References](#References)
  * [About Me](#About-Me)
 
