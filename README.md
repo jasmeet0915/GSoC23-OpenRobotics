@@ -163,6 +163,90 @@ Default values won't be a good choice in this scenarios as we have seen in the p
 
 <img src="images/compound_model_auto_inertia.gif" />
 
+**Demo 3:** This demo shows the automatic inertia calculation feature on a rubber ducky model which is a non-convex mesh. On the left, we have the rubber ducky mesh with automatic calculations enabled and on the right, the mesh uses the default values.
+> **Note:** The inertial values are due to the scale of the mesh. You can see the banana for scale in between the 2 ducks. A density value for the duck was used which was calculated by using the mass and volume data of the duck found online.
+
+> **Note:** The `voxel_size` inertia param given in the snippet below is just for showing how the `<auto_inertia_params>` element could be used. This is not actually used by the calculator since we are not using a voxelization-based calculator.
+> 
+<details>
+  <summary>SDF snippet for the duck mesh with auto inertial</summary>
+
+  ```xml
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="duck">
+    <link name="duck_link">
+      <pose>0 0 0 0 0 0</pose>
+      <inertial auto="true" />
+      <collision name="duck_collision">
+      	<pose>0 0 0 0 0 0</pose>
+        <density>111.8</density>
+        <auto_inertia_params>
+          <gz:voxel_size>0.01</gz:voxel_size>
+        </auto_inertia_params>
+        <geometry>
+          <mesh>
+            <uri>meshes/duck_collider.dae</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="duck_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/duck.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <static>true</static>
+  </model>
+</sdf>
+  ```
+</details>
+
+<img src="images/duck_mesh_inertia.gif" />
+
+**Demo 4:** This demo shows 2 cylinders: One using a Collada cylinder mesh (right) and the other made using the `<cylinder>` geometry from SDF (left). 
+
+Both use `<inertial auto="true" />` and we can see that the inertia values for both come up to be almost the same (within 0.005 tolerance). The mesh cylinder uses the mesh inertia calculator added to `gz-sim` and is used with `libsdformat` using the callback-based API.
+
+<details>
+  <summary>SDF snippet for the mesh cylinder</summary>
+
+  ```xml
+    <model name="cylinder_dae">
+      <pose>4 4 1 0 0 0</pose>
+      <link name="cylinder_dae">
+        <pose>0 0 0 0 0 0</pose>
+        <inertial auto="false" />
+        <collision name="cylinder_collision">
+          <density>1240.0</density>
+          <auto_inertia_params>
+            <gz:voxel_size>0.01</gz:voxel_size>
+          </auto_inertia_params>
+          <geometry>
+            <mesh>
+              <uri>cylinder_dae/meshes/cylinder.dae</uri>
+            </mesh>
+          </geometry>
+        </collision>
+        <visual name="cylinder_visual">
+          <pose>0 0 0 0 0 0</pose>
+          <geometry>
+            <mesh>
+              <uri>cylinder_dae/meshes/cylinder.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+      </link>
+      <static>true</static>
+    </model>
+  ```
+</details>
+
+<img src="images/mesh_and_sdf_cylinder.gif" />
+
 ## List of PRs and Issues
  <table>
   <tr>
