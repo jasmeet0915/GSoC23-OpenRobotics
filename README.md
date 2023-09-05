@@ -246,38 +246,49 @@ Both use `<inertial auto="true" />` and we can see that the inertia values for b
 
 <img src="images/mesh_and_sdf_cylinder.gif" />
 
-## List of PRs and Issues
+## List of PRs
  <table>
   <tr>
-    <td align="center"><b>Pull Requests</b></td><td align="center"><b>Repository</b></td>
+    <td align="center"><b>Pull Requests</b></td><td align="center"><b>Repository</b></td><td><b>Status</b></td>
   </tr>
   <tr>
     <td><a href="https://github.com/gazebosim/sdformat/pull/1299">Automatic Moment of Inertia Calculations for Basic Shapes</a></td>
     <td><a href="https://github.com/gazebosim/sdformat">sdformat</a></td>
+    <td>Merged</td>
   </tr>
   <tr>
     <td><a href="https://github.com/gazebosim/sdformat/pull/1304"> Callback-based API for Implementing Custom Moment of Inertia Calculators for Meshes</a></td>
      <td><a href="https://github.com/gazebosim/sdformat">sdformat</a></td>
+    <td>Merged</td>
   </tr>
   <tr>
     <td><a href="https://github.com/gazebosim/gz-sim/pull/2061">Added Mesh Moment of Inertia Calculator</a></td>
     <td><a href="https://github.com/gazebosim/gz-sim">gz-sim</a></td>
+    <td>Merged</td>
   </tr>
   <tr>
     <td><a href="https://github.com/gazebosim/sdformat/pull/1298">Copy 1.10 spec to 1.11 for sdformat14</a></td>
      <td><a href="https://github.com/gazebosim/sdformat">sdformat</a></td>
+    <td>Merged</td>
   </tr>
   <tr>
     <td><a href="https://github.com/gazebosim/sdf_tutorials/pull/92">Proposal for Automatic Calculation of Moments of Inertia for SDFormat Links</a></td>
     <td><a href="https://github.com/gazebosim/sdf_tutorials">sdf_tutorials</a></td>
+    <td>Merged</td>
   </tr>
+  <tr>
+    <td><a href="https://github.com/gazebosim/gz-sim/pull/2119">Added tutorial for Automatic Inertia Calculator</a></td>
+    <td><a href="https://github.com/gazebosim/gz-sim">gz-sim</a></td>
+    <td>Open</td>
   <tr>
     <td><a href="https://github.com/gazebosim/gz-math/pull/538">Added std::optional MassMatrix() functions for Box, Cylinder & Sphere</a></td>
     <td><a href="https://github.com/gazebosim/gz-math">gz-math</a></td>
+    <td>Merged</td>
   </tr>
   <tr>
     <td><a href="https://github.com/gazebosim/sdformat/pull/1292">Updated findfile() to search localpath first</a></td>
     <td><a href="https://github.com/gazebosim/sdformat">sdformat</a></td>
+    <td>Merged</td>
   </tr>
  <table>
 
