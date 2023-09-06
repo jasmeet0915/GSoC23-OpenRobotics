@@ -9,6 +9,12 @@ __Mentors: Addisu Taddese (addisu@openrobotics.org), Dharini Dutia (dharinidutia
   <img src="https://user-images.githubusercontent.com/23265149/262784333-bb55d5a7-0e33-4e7d-b69d-93f65f01ff94.png" />
 </p>
 
+Hello Everyone,
+
+This summer I was selected to work on `gz-sim` and `sdformat` as part of the Google Summer of Code Program 2023. My primary focus was the development of a feature enabling the automatic computation of Moments of Inertia for SDFormat Links in simulation.
+
+Throughout the program, I worked closely with my esteemed mentors, Addisu Taddese and Dharini Dutia, to make substantial contributions to the `gz-sim` and `sdformat` libraries. I am grateful to Open Robotics for providing me with this opportunity and I'm truly appreciative of the invaluable guidance and support provided by my mentors. This GSoC journey has been an immensely enriching learning experience!"
+
 ## Overview
 Setting physically plausible values for inertial parameters is crucial for an accurate simulation. However, these parameters 
 are often complex to comprehend and visualize, and users may tend to enter wrong values leading to incorrect simulation. 
@@ -21,7 +27,7 @@ that allows automatic calculation of Moments of Inertia for SDFormat links.
 This GitHub gist discusses about the motivation behind this feature and outlines the work that was done during the GSoC period.
 This gist contains the following contents:
  * [Motivation behind the project](#Motivation)
- * [Project Summary alongwith some usage examples and demos](#Project-Summary)
+ * [Project Summary along with some usage examples and demos](#Project-Summary)
  * [List of all PRs made and Issues opened during the period](#List-of-PRs-and-Issues)
  * [References](#References)
  * [About Me](#About-Me)
@@ -36,27 +42,88 @@ Currently, there are 2 major workflows used by the users to obtain the correct i
 Both of these ways create a dependency on external software and might be complicated for beginners. In case the user doesn't provide any inertial values, a default Mass Matrix is used with `mass = 1.0` and `Diagonal Elements = (1, 1, 1)` which might not be best suited for all kinds of models. Native support for automatic inertia calculations directly into `libsdformat` would work as a better alternative to using the default values and facilitate the effortless generation of accurate simulations.
 
 ## Project Summary
-This project proposed the addition of an `//inertial/@auto` attribute as well as a `//collision/density` element to the SDFormat Spec 1.11. This way, the **auto** attribute of the inertial element can be set to true which would allow `libsdformat` to compute the inertial values (mass, mass matrix, and center of mass) of a link using the **density** and **geometry** of its constituent collisions.
-
-Currently, the moment of inertia calculations are supported for the following geometry types: 
+This project enables automatic calculation for the Moments of Inertia, Mass, and
+Inertial Pose (Center of Mass pose) of a link described using SDFormat. The following
+Geometry types are currently supported with this feature:
  * Box
  * Capsule
  * Cylinder
  * Ellipsoid
  * Sphere
- * Mesh.
+ * Mesh
 
-Existing `MassMatrix()` functions from the `gz-math` library were used for the inertia calculation of basic shapes (box, capsule, cylinder, ellipsoid, and sphere). This functionality was integrated within `libsdformat` itself. Since `libsdformat` depends on `gz-math`, this would allow any simulator that relies on SDFormat to provide automatic moment of inertia calculation for basic shapes out of the box.
+Using this feature, a user can easily set up an accurate simulation with physically
+plausible inertial values for a link. This also removes the dependency on manual calculations
+or 3rd-party mesh processing software which can help lower the barrier of entry for beginners.
 
-On the other hand, a different approach was taken for the **mesh** geometry type since inertia calculations for 3D meshes can be complex and the preference for calculation method could vary for different users. A callback-based API was created that allows users to register their own custom inertia calculators. For this project, a **voxelization-based** and an **integration-based numerical** method were explored for computing the inertial properties of 3D meshes. Finally, the numerical method was selected as the approach for Gazebo. It uses **Gauss’s Theorem** and **Greene’s Theorem** of integration to convert **volume integrals to surface integrals (Gauss’s Theorem)** and then **surface integrals to line integrals(Greene’s Theorem)**.<sup>[\[1\]](#References)</sup> This method works for **triangle meshes** which are **simple water-tight polyhedrons**.
+A new `auto` attribute for the `<inertial>` tag was introduced through the project which can be set
+to true or false (The value is false by default) to enable or disable the automatic
+calculations for a link respectively:
 
-> **Note:** Since this method computes the inertia values using the vertex data, a large number of vertices are required in the mesh to calculate near-ideal values. For eg: in [this](https://github.com/jasmeet0915/gz-sim/blob/jasmeet/custom_mesh_inerita_calculator/test/integration/mesh_inertia_calculation.cc) integration test a cylinder mesh with 4096 vertices was used which resulted in inertia values withing a 0.005 tolerance of ideal.
+```xml
+<inertial auto="true" />
+```
+In case, `auto` is set to true, the constituent **collision geometries** of the link are
+considered for the calculations. A newly introduced `<density>` tag can be used to specify
+the mass density value of the collision in kg/m^3. The density of water (1000 kg/m^3) is
+utilized as the default value:
+
+```xml
+<collision name="collision">
+  <density>2710.0</density>
+  <geometry>
+    <box>
+      <size>1 1 1</size>
+    </box>
+  </geometry>
+</collision>
+```
+
+In case of multiple collision geometries in a link, a user is free to provide different
+density values for each and the inertia values from each would be aggregated to calculate
+the final inertia of the link. However, if there are no collisions present,
+an `ELEMENT_MISSING` error would be thrown.
+
+It is **important** to note here that if `auto` is set to `true` and the user has
+still provided values through the `<mass>`, `<pose>` and `<inertia>` tags, they
+would be **overwritten** by the automatically computed values.
+
+>**Note:** SDF Spec version 1.11 or greater is required to utilize the new tags and attributes
+of this feature.
+
+Existing `MassMatrix()` functions from the `gz-math` library were used for the 
+inertia calculation of basic shapes (box, capsule, cylinder, ellipsoid, and sphere) 
+and this functionality was integrated within `libsdformat` itself. 
+
+On the other hand, a different approach was taken for the **mesh** geometry 
+type since inertia calculations for 3D meshes can be complex and the preference 
+for calculation method could vary for different users. A callback-based API was 
+created that allows users to register their own custom inertia calculators. An 
+integration-based numerical** method was implemented for computing the inertial 
+properties of 3D meshes. It uses **Gauss’s Theorem** and **Greene’s Theorem** of 
+integration to convert **volume integrals to surface integrals (Gauss’s Theorem)** 
+and then **surface integrals to line integrals(Greene’s Theorem)**.<sup>[\[1\]](#References)</sup> 
+
+### Some Key Points Regarding Mesh Inertia Calculator
+
+Here are some key points to consider when using automatic inertia calculation with 3D Meshes:
+ * Water-tight triangle meshes are required for the Mesh Inertia Calculator.
+ * Currently, the mesh inertia is calculated about the mesh origin. Since the link
+ inertia value needs to be about the Center of Mass, the mesh origin needs to be set
+ at the Center of Mass (Centroid).
+ * Since the vertex data is used for inertia calculations, a high vertex count would be
+ needed for near-ideal values. However, it is recommended to use basic shapes with the
+ geometry tag (Box, Capsule, Cylinder, Ellipsoid, and Sphere) as collision geometries to
+ reduce the load of calculations. For eg: in [this](https://github.com/jasmeet0915/gz-sim/blob/jasmeet/custom_mesh_inerita_calculator/test/integration/mesh_inertia_calculation.cc) integration
+test a cylinder mesh with 4096 vertices was used which resulted in inertia values withing a 0.005 tolerance of ideal.
 
 ## Demos
+Let's have a look at some demos that would help you grasp a better understanding of the outcomes of this feature.
 
-**Demo 1:** This demo shows 2 cylinders: one with default inertial values (right, green) and the other with automatic inertia calculations enabled (left, yellow). 
+### Default vs. Automatically Computed Inertia Values
+This demo shows 2 cylinders: one with default inertial values (right, green) and the other with automatic inertia calculations enabled (left, yellow). 
 
-In this demo, we can see the difference between the inertia of both cylinders through the visualization enabled. The difference shows that the calculated values are more realistic for cylinder as compared to the default ones.
+In this demo, we can see the difference between the inertia of both cylinders through the visualization enabled. The difference shows that the calculated values are more realistic for cylinders as compared to the default ones.
 
 <details>
   <summary>SDF snippet for the yellow cylinder</summary>
@@ -95,9 +162,10 @@ In this demo, we can see the difference between the inertia of both cylinders th
 
 <img src="images/cylinder_auto_inertia_demo.gif" />
 
-**Demo 2:** This demo shows a model with a link having 2 collisions: a cube with a cylinder on top of it. 
+### Automatic Inertia Calculation for Links with Multiple Collisions 
+This demo shows a model with a link having 2 collisions: a cube with a cylinder on top of it. 
 
-Default values won't be a good choice in this scenarios as we have seen in the previous demo and manually calculating the values would not be straightforward. Therefore, using the automatic inertia calculations we can easily get realistic inertial values for the compound shape.
+Default values won't be a good choice in this scenario as we have seen in the previous demo and manually calculating the values would not be straightforward. Therefore, using the automatic inertia calculations we can easily get realistic inertial values for the compound shape.
 
 <details>
   <summary>SDF snippet of the model in the demo</summary>
@@ -159,14 +227,16 @@ Default values won't be a good choice in this scenarios as we have seen in the p
   ```
 </details>
 
-
 <img src="images/compound_model_auto_inertia.gif" />
 
-**Demo 3:** This demo shows the automatic inertia calculation feature on a rubber ducky model which is a non-convex mesh. On the left, we have the rubber ducky mesh with automatic calculations enabled and on the right, the mesh uses the default values.
-> **Note:** The inertial values are due to the scale of the mesh. You can see the banana for scale in between the 2 ducks. A density value for the duck was used which was calculated by using the mass and volume data of the duck found online.
+### Mesh Inertia Calculation Example with Rubber Ducky 3D Mesh
+This demo shows the automatic inertia calculation feature on a rubber ducky 
+model which is a non-convex mesh. On the left, we have the rubber ducky mesh 
+with automatic calculations enabled and on the right, the mesh uses the default values.
+> **Note:** The inertial values are due to the scale of the mesh. You can
+see the banana for scale in between the 2 ducks. A density value for the duck
+was used which was calculated by using the mass and volume data of the duck found online.
 
-> **Note:** The `voxel_size` inertia param given in the snippet below is just for showing how the `<auto_inertia_params>` element could be used. This is not actually used by the calculator since we are not using a voxelization-based calculator.
-> 
 <details>
   <summary>SDF snippet for the duck mesh with auto inertial</summary>
 
@@ -180,9 +250,6 @@ Default values won't be a good choice in this scenarios as we have seen in the p
       <collision name="duck_collision">
       	<pose>0 0 0 0 0 0</pose>
         <density>111.8</density>
-        <auto_inertia_params>
-          <gz:voxel_size>0.01</gz:voxel_size>
-        </auto_inertia_params>
         <geometry>
           <mesh>
             <uri>meshes/duck_collider.dae</uri>
@@ -291,6 +358,17 @@ Both use `<inertial auto="true" />` and we can see that the inertia values for b
     <td>Merged</td>
   </tr>
  <table>
+
+## Future Plans
+During the project, most of our goals were satisfied and the desired results were obtained.
+However, there are some things that need to be developed for a better workflow:
+ * Link level `<density>` and `<auto_inertial_params>` tags were added but their functionality
+was not implemented. It would be good to provide users with the ability to provide
+density values for the whole link instead of copying the same values for each collision.
+ * Currently, the mesh origin needs to be set at the geometric center (centroid) for correct
+inertia values. Since there are many cases where the mesh origin might be set elsewhere, it would
+be good to have a functionality that can transform the computed inertia tensor to the mesh centroid
+in such a case.
 
 ## References
  * \[1\]: https://www.geometrictools.com/Documentation/PolyhedralMassProperties.pdf
