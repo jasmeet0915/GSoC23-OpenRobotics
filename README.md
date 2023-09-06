@@ -229,6 +229,32 @@ Default values won't be a good choice in this scenario as we have seen in the pr
 
 <img src="images/compound_model_auto_inertia.gif" />
 
+### Pendulum Example World & Effect of Density
+To understand the inertia calculation in links with multiple collisions and the
+effect of setting different density values, you can launch the `auto_inertia_pendulum.sdf`
+example world using:
+
+```bash
+gz sim auto_inertia_pendulum.sdf
+```
+After the gz-sim window opens up, you can right-click on both models and enable
+the center of mass visualization by selecting the `View > Center of Mass` option from
+the menu. Once you play the simulation it should look this:
+
+![Pendulum](images/auto_inertia_pendulum.gif)
+
+This example world has two structurally identical models. The pendulum link of both
+models contains 3 cylindrical collision geometries: One on the top which forms the
+joint, One in a longer cylinder in the middle, and One at the end which forms the bob of
+the pendulum. Even, though they are identical, the center of mass for both are different
+as they use different density values for the different cylinder collisions. On one
+hand, the upper joint collision of the pendulum on the left has the highest density
+which causes the center of mass to shift closer to the axis while on the other hand,
+the bob collision of the pendulum on the right has the highest density which causes
+the center of mass to shift towards the end of the pendulum.
+This difference in mass distribution about the axis of rotation results in a difference
+in the moment of inertia of the 2 setups and hence different angular velocities.
+
 ### Mesh Inertia Calculation Example with Rubber Ducky 3D Mesh
 This demo shows the automatic inertia calculation feature on a rubber ducky 
 model which is a non-convex mesh. On the left, we have the rubber ducky mesh 
@@ -273,45 +299,28 @@ was used which was calculated by using the mass and volume data of the duck foun
 
 <img src="images/duck_mesh_inertia.gif" />
 
-**Demo 4:** This demo shows 2 cylinders: One using a Collada cylinder mesh (right) and the other made using the `<cylinder>` geometry from SDF (left). 
+### Mesh Inertia Calculation with Rolling Shapes Demo
 
-Both use `<inertial auto="true" />` and we can see that the inertia values for both come up to be almost the same (within 0.005 tolerance). The mesh cylinder uses the mesh inertia calculator added to `gz-sim` and is used with `libsdformat` using the callback-based API.
+Let's try another example world, `auto_inertia_rolling_shapes.sdf`. This can be
+launched with `gz sim` using the following command:
 
-<details>
-  <summary>SDF snippet for the mesh cylinder</summary>
+```bash
+gz sim auto_inertia_rolling_shapes.sdf
+```
 
-  ```xml
-    <model name="cylinder_dae">
-      <pose>4 4 1 0 0 0</pose>
-      <link name="cylinder_dae">
-        <pose>0 0 0 0 0 0</pose>
-        <inertial auto="false" />
-        <collision name="cylinder_collision">
-          <density>1240.0</density>
-          <auto_inertia_params>
-            <gz:voxel_size>0.01</gz:voxel_size>
-          </auto_inertia_params>
-          <geometry>
-            <mesh>
-              <uri>cylinder_dae/meshes/cylinder.dae</uri>
-            </mesh>
-          </geometry>
-        </collision>
-        <visual name="cylinder_visual">
-          <pose>0 0 0 0 0 0</pose>
-          <geometry>
-            <mesh>
-              <uri>cylinder_dae/meshes/cylinder.dae</uri>
-            </mesh>
-          </geometry>
-        </visual>
-      </link>
-      <static>true</static>
-    </model>
-  ```
-</details>
+Once you launch and play the simulation, it should look something like this:
 
-<img src="images/mesh_and_sdf_cylinder.gif" />
+![Rolling](images/rolling_inertia_demo.gif)
+
+Here the right most shape is a hollow cylinder (yellow). This model is loaded from
+fuel and is made using a collada mesh of a hollow cylinder. Apart from this, we can
+see there is a solid cylinder, a solid sphere, and a solid capsule. All of these are
+made using the `<geometry>` tag and have automatic inertia calculations enabled.
+Here, the moments of inertia for the hollow cylinder (which is convex mesh shape) is
+calculated and from the simulation, we can see that it reaches the bottom of the
+incline last. This is physically accurate as the mass distribution for the hollow
+cylinder is concentrated at a distance from the axis of rotation (which passes through
+the center of mass in this case).
 
 ## List of PRs
  <table>
