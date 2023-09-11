@@ -2,7 +2,7 @@
 
 __Project: Automatically Compute Moments of Inertia for SDFormat Links__
 
-__Mentors: Addisu Taddese (addisu@openrobotics.org), Dharini Dutia (dharinidutia@openrobotics.org)__
+__Mentors: Addisu Taddese (addisu@openrobotics.org), Dharini Dutia (dharini@openrobotics.org)__
 
 <p float="left">
   <img src="https://user-images.githubusercontent.com/23265149/262784391-36b07808-2436-49fe-aba1-5fc89adb497d.png" width=22% />
